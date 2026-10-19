@@ -53,7 +53,7 @@ To be added by the module owners.
 
 ## Working together
 
-- Everyone commits from **their own GitHub account**; the commit history is evidence for the contribution table.
+- Everyone commits from **their own GitHub account**.
 - Work on your own branch and open a pull request; merge it into `main` once GitHub shows no conflicts.
 - Do not commit large raw data (IMDb), virtual environments or model checkpoints; see `.gitignore`.
 
