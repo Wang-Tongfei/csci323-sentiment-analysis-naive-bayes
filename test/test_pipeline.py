@@ -1,11 +1,17 @@
 import sys
 from pathlib import Path
 
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
 # Allow this test file to import files from the project folder
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from data import load_tweeteval_sentiment
 from features import load_features
+from naive_bayes import MultinomialNaiveBayes
+from baselines import logistic_regression, linear_svm
 
 
 def check_dataset():
@@ -53,6 +59,69 @@ def check_features():
     print("Feature checks passed.")
 
 
+def check_models():
+    """Check that the Part 3B models can train and predict."""
+
+    # Small example dataset used only for testing
+    texts = [
+        "good amazing",
+        "great good",
+        "bad terrible",
+        "awful bad",
+        "okay normal",
+        "average okay",
+    ]
+
+    labels = np.array([2, 2, 0, 0, 1, 1])
+
+    vectorizer = CountVectorizer()
+    X = vectorizer.fit_transform(texts)
+
+    # Check our own Naive Bayes
+    our_nb = MultinomialNaiveBayes(alpha=1.0)
+    our_nb.fit(X, labels)
+
+    our_predictions = our_nb.predict(X)
+
+    assert len(our_predictions) == len(labels)
+
+    # Check that the learned values are valid numbers
+    assert np.isfinite(our_nb.class_log_prior).all()
+    assert np.isfinite(our_nb.feature_log_prob).all()
+
+    # Compare our Naive Bayes with sklearn
+    sklearn_nb = MultinomialNB(alpha=1.0)
+    sklearn_nb.fit(X, labels)
+
+    sklearn_predictions = sklearn_nb.predict(X)
+
+    assert np.array_equal(
+        our_predictions,
+        sklearn_predictions
+    )
+
+    # Check Logistic Regression
+    lr = logistic_regression(C=1.0)
+    lr.fit(X, labels)
+
+    lr_predictions = lr.predict(X)
+
+    assert len(lr_predictions) == len(labels)
+
+    # Check Linear SVM
+    svm = linear_svm(C=0.1)
+    svm.fit(X, labels)
+
+    svm_predictions = svm.predict(X)
+
+    assert len(svm_predictions) == len(labels)
+
+    print("Model checks passed.")
+
+
 if __name__ == "__main__":
     check_dataset()
     check_features()
+    check_models()
+
+    print("All sanity checks passed.")
