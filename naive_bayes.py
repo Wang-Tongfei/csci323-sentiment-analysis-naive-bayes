@@ -3,105 +3,93 @@ import numpy as np
 
 class MultinomialNaiveBayes:
     """
-    Our Multinomial Naive Bayes model built using NumPy.
-
-    The model learns:
-    - how common each sentiment class is
-    - how common each word is inside each class
+    Multinomial Naive Bayes written from scratch using NumPy.
     """
 
     def __init__(self, alpha=1.0):
         # alpha controls smoothing
         self.alpha = alpha
 
-
     def fit(self, X, y):
-        # Learn the probabilities needed for Naive Bayes.
-
-
+        """
+        Learn class probabilities and word probabilities
+        from the training data.
+        """
         y = np.asarray(y)
 
-        # Find the different classes: 0, 1 and 2
+        # Find the sentiment classes
         self.classes = np.unique(y)
 
-        # Number of words/features in our vocabulary
+        # Number of words/features in the vocabulary
         n_features = X.shape[1]
 
-        # Store the class probabilities
-        self.class_log_prior = np.zeros(
-            len(self.classes)
-        )
-
-        # Store word probabilities for each class
+        # Store the learned probabilities
+        self.class_log_prior = np.zeros(len(self.classes))
         self.feature_log_prob = np.zeros(
             (len(self.classes), n_features)
         )
 
-        # Learn values for each sentiment class
-        for i, c in enumerate(self.classes):
+        for i, current_class in enumerate(self.classes):
 
-            # Only keep training examples from this class
-            X_c = X[y == c]
+            # Get only the training examples from this class
+            X_class = X[y == current_class]
 
-            # Probability of this class
-            self.class_log_prior[i] = np.log(
-                X_c.shape[0] / X.shape[0]
-            )
+            # Calculate how common this class is
+            class_probability = X_class.shape[0] / X.shape[0]
+            self.class_log_prior[i] = np.log(class_probability)
 
-            # Count each word for this class
+            # Count how often each word appears in this class
             word_counts = np.asarray(
-                X_c.sum(axis=0)
+                X_class.sum(axis=0)
             ).ravel()
 
-            # Add smoothing so unseen words do not get probability 0
-            smoothed_counts = (
-                word_counts + self.alpha
+            # Add smoothing so no word has probability zero
+            smoothed_counts = word_counts + self.alpha
+
+            # Convert the word counts into probabilities
+            word_probabilities = (
+                smoothed_counts / smoothed_counts.sum()
             )
 
-            # Convert word counts into probabilities
+            # Store them as log probabilities
             self.feature_log_prob[i] = np.log(
-                smoothed_counts
-                / smoothed_counts.sum()
+                word_probabilities
             )
 
         return self
 
-
     def predict_log_scores(self, X):
-        # Calculate a score for every possible class.
-        
+        """
+        Calculate a score for each sentiment class.
+        """
 
-        return (
-            X @ self.feature_log_prob.T
-            + self.class_log_prior
-        )
+        # Combine tweet word counts with the learned word probabilities
+        word_scores = X @ self.feature_log_prob.T
 
+        # Also include how common each class was in training
+        scores = word_scores + self.class_log_prior
+
+        return scores
 
     def predict_log_proba(self, X):
-        # Convert the class scores into log probabilities
+        """
+        Convert the scores into log probabilities.
+        This is mainly used when checking our model against sklearn.
+        """
 
         scores = self.predict_log_scores(X)
 
         # Keep the calculation numerically stable
-        max_scores = scores.max(
-            axis=1,
-            keepdims=True
-        )
+        max_scores = scores.max(axis=1, keepdims=True)
 
-        log_evidence = (
-            max_scores
-            + np.log(
-                np.exp(
-                    scores - max_scores
-                ).sum(
-                    axis=1,
-                    keepdims=True
-                )
+        log_total = max_scores + np.log(
+            np.exp(scores - max_scores).sum(
+                axis=1,
+                keepdims=True
             )
         )
 
-        return scores - log_evidence
-
+        return scores - log_total
 
     def predict(self, X):
         """
@@ -110,6 +98,7 @@ class MultinomialNaiveBayes:
 
         scores = self.predict_log_scores(X)
 
-        return self.classes[
-            np.argmax(scores, axis=1)
-        ]
+        # Pick the class with the highest score
+        best_class_index = np.argmax(scores, axis=1)
+
+        return self.classes[best_class_index]
