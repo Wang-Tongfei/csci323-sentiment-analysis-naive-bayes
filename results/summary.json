@@ -1,0 +1,34 @@
+{
+    "selection_metric": "macro_recall",
+    "best_settings": {
+        "Custom Naive Bayes": {
+            "parameter": "alpha",
+            "value": 0.5
+        },
+        "Logistic Regression": {
+            "parameter": "C",
+            "value": 1.0
+        },
+        "Linear SVM": {
+            "parameter": "C",
+            "value": 0.1
+        }
+    },
+    "test_results": {
+        "Custom Naive Bayes": {
+            "accuracy": 0.5796971670465646,
+            "macro_recall": 0.5915081460403048,
+            "macro_f1": 0.5770816565257154
+        },
+        "Logistic Regression": {
+            "accuracy": 0.5816509280364702,
+            "macro_recall": 0.5648090513544816,
+            "macro_f1": 0.5623231624311295
+        },
+        "Linear SVM": {
+            "accuracy": 0.5862911103874959,
+            "macro_recall": 0.5490682443032096,
+            "macro_f1": 0.5469107962062137
+        }
+    }
+}
