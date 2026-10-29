@@ -1,34 +1,25 @@
 from collections import Counter
+
 from datasets import load_dataset
 
 
-# Sentiment labels used by TweetEval
+# TweetEval sentiment labels
 LABEL_NAMES = {
     0: "negative",
     1: "neutral",
     2: "positive"
 }
 
-# Dataset parts provided by TweetEval
 SPLITS = ["train", "validation", "test"]
 
 
 def load_tweeteval_sentiment():
-    """
-    Load the TweetEval sentiment dataset.
-
-    TweetEval already gives us:
-    - train data
-    - validation data
-    - test data
-    """
+    """Load the TweetEval sentiment dataset."""
     return load_dataset("cardiffnlp/tweet_eval", "sentiment")
 
 
 def get_texts_and_labels(dataset, split):
-    """
-    Get the text and labels from one split.
-    """
+    """Return the texts and labels for one split."""
     texts = list(dataset[split]["text"])
     labels = list(dataset[split]["label"])
 
@@ -36,14 +27,12 @@ def get_texts_and_labels(dataset, split):
 
 
 def inspect_split(split, split_name):
-    """
-    Check basic information about one dataset split.
-    """
+    """Print basic information and quality checks for one split."""
 
     texts = split["text"]
     labels = split["label"]
 
-    # Remove extra spaces so empty tweets can be detected
+    # Remove spaces at the beginning/end before checking the text
     cleaned_texts = [
         text.strip() if text is not None else ""
         for text in texts
@@ -55,36 +44,36 @@ def inspect_split(split, split_name):
         if text == ""
     )
 
-    # Count repeated tweets
+    # Count repeated tweet text
     duplicate_texts = (
-        len(cleaned_texts)
-        - len(set(cleaned_texts))
+        len(cleaned_texts) - len(set(cleaned_texts))
     )
 
-    # Check if any label is not 0, 1 or 2
+    # Check for unexpected labels
     invalid_labels = sum(
         1 for label in labels
         if label not in LABEL_NAMES
     )
 
-    # Count examples in each sentiment class
+    # Count how many examples belong to each class
     class_counts = Counter(labels)
 
     print(f"\n--- {split_name.upper()} ---")
     print(f"Number of examples: {len(texts)}")
     print(f"Empty texts: {empty_texts}")
     print(f"Duplicate texts: {duplicate_texts}")
-    print(f"Missing/invalid labels: {invalid_labels}")
+    print(f"Unexpected labels: {invalid_labels}")
 
     print("Class distribution:")
 
     for label_id in sorted(class_counts):
         label_name = LABEL_NAMES.get(label_id, "INVALID")
         count = class_counts[label_id]
+        percentage = count / len(labels)
 
         print(
             f"  {label_id} ({label_name}): "
-            f"{count} ({count / len(labels):.1%})"
+            f"{count} ({percentage:.1%})"
         )
 
     return {
@@ -93,18 +82,14 @@ def inspect_split(split, split_name):
         "duplicate_texts": duplicate_texts,
         "invalid_labels": invalid_labels,
         "class_counts": {
-            LABEL_NAMES.get(k, "INVALID"): v
-            for k, v in sorted(class_counts.items())
+            LABEL_NAMES.get(label, "INVALID"): count
+            for label, count in sorted(class_counts.items())
         }
     }
 
 
 def check_split_overlap(dataset):
-    """
-    Check if the same tweet appears in more than one split.
-
-    This helps us check for possible data leakage.
-    """
+    """Check if the same tweet appears in different splits."""
 
     train_texts = set(
         text.strip()
@@ -134,9 +119,9 @@ def check_split_overlap(dataset):
     )
 
     print("\n--- SPLIT OVERLAP CHECK ---")
-    print(f"Train & Validation: {train_validation_overlap}")
-    print(f"Train & Test: {train_test_overlap}")
-    print(f"Validation & Test: {validation_test_overlap}")
+    print(f"Train vs Validation: {train_validation_overlap}")
+    print(f"Train vs Test: {train_test_overlap}")
+    print(f"Validation vs Test: {validation_test_overlap}")
 
     return {
         "train_validation": train_validation_overlap,
@@ -146,23 +131,21 @@ def check_split_overlap(dataset):
 
 
 def main():
-
     print("Loading TweetEval sentiment dataset...")
 
     dataset = load_tweeteval_sentiment()
 
-    # Make sure the expected dataset parts exist
+    # Check that the expected splits and columns exist
     for split_name in SPLITS:
-
         assert split_name in dataset, (
             f"Missing split: {split_name}"
         )
 
         assert {"text", "label"} <= set(
             dataset[split_name].column_names
-        )
+        ), f"Missing text or label column in {split_name}"
 
-    # Check train, validation and test data
+    # Inspect train, validation and test separately
     for split_name in SPLITS:
         inspect_split(
             dataset[split_name],
@@ -173,5 +156,5 @@ def main():
     check_split_overlap(dataset)
 
 
-if name == "main":
+if __name__ == "__main__":
     main()
