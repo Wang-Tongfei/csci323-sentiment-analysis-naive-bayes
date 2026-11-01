@@ -1,0 +1,4 @@
+configuration,vocabulary_size,validation_macro_recall
+Original Bag-of-Words,43358,0.5878762002179724
+Unigrams + Bigrams,387765,0.5533248397172448
+Minimum frequency = 2,19120,0.5954711018002157
