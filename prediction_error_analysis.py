@@ -3,14 +3,12 @@ import pandas as pd
 df = pd.read_csv("results/test_predictions.csv")
 names = {0: "Negative", 1: "Neutral", 2: "Positive"}
 
-# keep only the tweets NB got wrong
 errors = df[df["true_label"] != df["custom_naive_bayes"]].copy()
 errors["row_id"] = errors.index
 errors["error_category"] = (
     errors["true_label"].map(names) + "_to_" + errors["custom_naive_bayes"].map(names)
 )
 
-# did the other two models get it right?
 lr_ok = errors["logistic_regression"] == errors["true_label"]
 svm_ok = errors["linear_svm"] == errors["true_label"]
 errors["error_scope"] = "All three wrong"
@@ -18,9 +16,9 @@ errors.loc[lr_ok & svm_ok, "error_scope"] = "NB only"
 errors.loc[lr_ok & ~svm_ok, "error_scope"] = "NB and SVM wrong"
 errors.loc[~lr_ok & svm_ok, "error_scope"] = "NB and LR wrong"
 
-print(errors["error_category"].value_counts())   # how many of each mix-up
+print(errors["error_category"].value_counts())
 
-# 10 random errors per category, seed 323 so it's repeatable
+
 sample = errors.groupby("error_category").sample(n=10, random_state=323)
 sample["possible_reason"] = ""
 sample["notes"] = ""
