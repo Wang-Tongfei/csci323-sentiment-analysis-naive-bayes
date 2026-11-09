@@ -21,8 +21,8 @@ The project follows a train / validation / test workflow.
 
 | Member | Part | Responsibility | Main Contribution |
 | --- | --- | --- | --- |
-| **[Name]** | Part 1 | Introduction | Problem background, motivation, project objectives and overview |
-| **[Name]** | Part 2 | Background Theory | Theoretical foundations, mathematical concepts and related research |
+| **Jian Qiang/Wang Tong Fei** | Part 1 | Introduction | Problem background, motivation, project objectives and overview |
+| **Jian Qiang/Wang Tong Fei** | Part 2 | Background Theory | Theoretical foundations, mathematical concepts and related research |
 | **Emma Louise McLean/ Mohammed Omar** | Part 3A | Data Pipeline & Features | Dataset loading, data checks and Bag-of-Words feature extraction |
 | **Emma Louise McLean/ Mohammed Omar** | Part 3B | Model Development | Custom Naive Bayes, Logistic Regression, Linear SVM and model verification |
 | **Ng Xuan Ying/ Samar Batra** | Part 4 | Evaluation & Results | Hyperparameter tuning, metrics, ablation study, learning curve, figures and error analysis |
