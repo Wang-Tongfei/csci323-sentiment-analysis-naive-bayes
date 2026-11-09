@@ -25,7 +25,7 @@ The project follows a train / validation / test workflow.
 | **[Name]** | Part 2 | Background Theory | Theoretical foundations, mathematical concepts and related research |
 | **Emma Louise McLean/ Mohammed Omar** | Part 3A | Data Pipeline & Features | Dataset loading, data checks and Bag-of-Words feature extraction |
 | **Emma Louise McLean/ Mohammed Omar** | Part 3B | Model Development | Custom Naive Bayes, Logistic Regression, Linear SVM and model verification |
-| **[Name]** | Part 4 | Evaluation & Results | Hyperparameter tuning, metrics, ablation study, learning curve, figures and error analysis |
+| **Ng Xuan Ying** | Part 4 | Evaluation & Results | Hyperparameter tuning, metrics, ablation study, learning curve, figures and error analysis |
 | **[Name]** | Part 5 | Conclusion & References | Main findings, limitations, future improvements and references |
 
 All members also contributed to reviewing and integrating the final project, report and presentation.
